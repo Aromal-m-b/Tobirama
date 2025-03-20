@@ -71,7 +71,7 @@ export class MemStorage implements IStorage {
   private cartItems: Map<number, CartItem>;
   private reviews: Map<number, Review>;
   
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
   
   private userIdCounter: number;
   private productIdCounter: number;
