@@ -7,10 +7,10 @@ import {
   cartItems, CartItem, InsertCartItem,
   reviews, Review, InsertReview
 } from "@shared/schema";
-import { createMemoryStore } from "memorystore";
 import session from "express-session";
+import memorystore from "memorystore";
 
-const MemoryStore = createMemoryStore(session);
+const MemoryStore = memorystore(session);
 
 export interface IStorage {
   // User methods

@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
 import { insertUserSchema, insertOrderSchema, insertOrderItemSchema, insertCartItemSchema, insertWishlistItemSchema, insertReviewSchema } from "@shared/schema";
+import { setupAuth } from "./auth";
 
 // Middleware to check if user is authenticated
 const isAuthenticated = (req: Request, res: Response, next: Function) => {
@@ -21,6 +22,8 @@ const isAdmin = (req: Request, res: Response, next: Function) => {
 };
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Set up authentication
+  setupAuth(app);
   // Products APIs
   app.get("/api/products", async (req, res) => {
     try {
