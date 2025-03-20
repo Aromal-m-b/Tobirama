@@ -59,7 +59,7 @@ export interface IStorage {
   createReview(review: InsertReview): Promise<Review>;
   
   // Session store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 }
 
 export class MemStorage implements IStorage {

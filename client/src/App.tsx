@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { CartProvider } from "@/hooks/use-cart";
 import { WishlistProvider } from "@/hooks/use-wishlist";
 import { ThemeProvider } from "@/hooks/use-theme";
+import { AuthProvider } from "@/hooks/use-auth";
 
 import MainLayout from "@/components/layout/main-layout";
 import NotFound from "@/pages/not-found";
@@ -20,6 +21,7 @@ import ProfilePage from "@/pages/profile-page";
 import SearchPage from "@/pages/search-page";
 import ThemePage from "@/pages/theme-page";
 import AdminDashboard from "@/pages/admin-dashboard";
+import AuthPage from "@/pages/auth-page";
 import { ProtectedRoute } from "./lib/protected-route";
 
 function Router() {
@@ -28,15 +30,19 @@ function Router() {
       <Route path="/" component={HomePage} />
       <Route path="/products" component={ProductsPage} />
       <Route path="/product/:id" component={ProductDetailsPage} />
-      <Route path="/cart" component={CartPage} />
-      <Route path="/checkout" component={CheckoutPage} />
-      <Route path="/order-confirmation/:id" component={OrderConfirmationPage} />
-      <Route path="/order-tracking/:id" component={OrderTrackingPage} />
-      <Route path="/wishlist" component={WishlistPage} />
-      <Route path="/profile" component={ProfilePage} />
+      <Route path="/auth" component={AuthPage} />
       <Route path="/search" component={SearchPage} />
       <Route path="/theme" component={ThemePage} />
+      
+      {/* Protected routes */}
+      <ProtectedRoute path="/cart" component={CartPage} />
+      <ProtectedRoute path="/checkout" component={CheckoutPage} />
+      <ProtectedRoute path="/order-confirmation/:id" component={OrderConfirmationPage} />
+      <ProtectedRoute path="/order-tracking/:id" component={OrderTrackingPage} />
+      <ProtectedRoute path="/wishlist" component={WishlistPage} />
+      <ProtectedRoute path="/profile" component={ProfilePage} />
       <ProtectedRoute path="/admin" component={AdminDashboard} adminOnly={true} />
+      
       <Route component={NotFound} />
     </Switch>
   );
@@ -46,14 +52,16 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <CartProvider>
-          <WishlistProvider>
-            <MainLayout>
-              <Router />
-            </MainLayout>
-            <Toaster />
-          </WishlistProvider>
-        </CartProvider>
+        <AuthProvider>
+          <CartProvider>
+            <WishlistProvider>
+              <MainLayout>
+                <Router />
+              </MainLayout>
+              <Toaster />
+            </WishlistProvider>
+          </CartProvider>
+        </AuthProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
