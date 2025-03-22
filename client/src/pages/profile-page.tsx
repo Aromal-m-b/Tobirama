@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { 
   User,
   MapPin,
@@ -10,107 +10,18 @@ import {
   ChevronRight,
   Shield,
   RefreshCw,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-
-// Sample user data - in a real app this would come from an API
-const mockUserData = {
-  id: 1,
-  firstName: "John",
-  lastName: "Doe",
-  email: "john.doe@example.com",
-  phone: "555-123-4567",
-  addresses: [
-    {
-      id: 1,
-      name: "Home",
-      address: "123 Main Street",
-      city: "New York",
-      state: "NY",
-      zipCode: "10001",
-      country: "United States",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      name: "Work",
-      address: "456 Park Avenue",
-      city: "New York",
-      state: "NY",
-      zipCode: "10022",
-      country: "United States",
-      isDefault: false,
-    },
-  ],
-  orders: [
-    {
-      id: "ORD123456",
-      date: "2023-06-15",
-      total: 149.97,
-      status: "Delivered",
-      items: [
-        {
-          id: 1,
-          name: "Denim Jacket",
-          price: 89.99,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1618354691551-44de113f0164?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-        },
-        {
-          id: 2,
-          name: "Graphic Tee",
-          price: 29.99,
-          quantity: 2,
-          image: "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-        },
-      ],
-    },
-    {
-      id: "ORD789012",
-      date: "2023-05-28",
-      total: 219.95,
-      status: "Delivered",
-      items: [
-        {
-          id: 3,
-          name: "Leather Bag",
-          price: 79.99,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1605908502724-9093a79a1b39?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-        },
-        {
-          id: 4,
-          name: "Sport Shoes",
-          price: 139.96,
-          quantity: 1,
-          image: "https://images.unsplash.com/photo-1516478177764-9fe5bd7e9717?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80",
-        },
-      ],
-    },
-  ],
-  paymentMethods: [
-    {
-      id: 1,
-      type: "Credit Card",
-      name: "Visa ending in 4567",
-      expiryDate: "05/25",
-      isDefault: true,
-    },
-    {
-      id: 2,
-      type: "Credit Card",
-      name: "Mastercard ending in 8901",
-      expiryDate: "09/24",
-      isDefault: false,
-    },
-  ],
-};
+import { useAuth } from "@/hooks/use-auth";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const ProfileTabs = {
   PROFILE: "profile",
@@ -123,13 +34,32 @@ const ProfileTabs = {
 export default function ProfilePage() {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState(ProfileTabs.PROFILE);
-  const [userData, setUserData] = useState(mockUserData);
+  const { user, logoutMutation } = useAuth();
+  const [location, setLocation] = useLocation();
+  
+  // Orders data
+  const { data: orders = [], isLoading: isLoadingOrders } = useQuery({
+    queryKey: ['/api/orders/user'],
+    enabled: !!user,
+  });
+  
+  // Placeholder for address and payment methods until we implement them
+  const addresses = [];
+  const paymentMethods = [];
+  
+  // User data structure combining fetched user with additional data
+  const userData = user ? {
+    ...user,
+    orders,
+    addresses,
+    paymentMethods,
+  } : null;
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({
-    firstName: userData.firstName,
-    lastName: userData.lastName,
-    email: userData.email,
-    phone: userData.phone,
+    firstName: user?.firstName || "",
+    lastName: user?.lastName || "",
+    email: user?.email || "",
+    phone: user?.phone || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -186,6 +116,19 @@ export default function ProfilePage() {
     });
   };
   
+  // If user is not logged in or data is loading
+  if (!userData) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="text-center">
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-primary" />
+          <h2 className="text-xl font-semibold">Loading profile...</h2>
+          <p className="mt-2 text-gray-500">Please wait while we retrieve your information</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="bg-gray-50 dark:bg-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -198,7 +141,7 @@ export default function ProfilePage() {
                   <User className="h-10 w-10" />
                 </div>
                 <h2 className="mt-4 text-lg font-bold text-gray-900 dark:text-white">
-                  {userData.firstName} {userData.lastName}
+                  {userData.firstName || ''} {userData.lastName || ''}
                 </h2>
                 <p className="text-sm text-gray-500 dark:text-gray-400">{userData.email}</p>
               </div>
