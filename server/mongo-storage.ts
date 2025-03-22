@@ -127,7 +127,7 @@ export class MongoStorage implements IStorage {
   }
 
   // User methods
-  async getUser(id: number): Promise<User | undefined> {
+  async getUser(id: string): Promise<User | undefined> {
     try {
       const user = await UserModel.findById(id);
       if (!user) return undefined;
@@ -172,7 +172,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async updateUser(id: number, userData: Partial<User>): Promise<User | undefined> {
+  async updateUser(id: string, userData: Partial<User>): Promise<User | undefined> {
     try {
       const user = await UserModel.findByIdAndUpdate(id, userData, { new: true });
       if (!user) return undefined;
@@ -194,7 +194,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async getProductById(id: number): Promise<Product | undefined> {
+  async getProductById(id: string): Promise<Product | undefined> {
     try {
       const product = await ProductModel.findById(id);
       if (!product) return undefined;
@@ -279,7 +279,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async updateProduct(id: number, productData: Partial<Product>): Promise<Product | undefined> {
+  async updateProduct(id: string, productData: Partial<Product>): Promise<Product | undefined> {
     try {
       const product = await ProductModel.findByIdAndUpdate(id, productData, { new: true });
       if (!product) return undefined;
@@ -290,7 +290,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async deleteProduct(id: number): Promise<boolean> {
+  async deleteProduct(id: string): Promise<boolean> {
     try {
       const result = await ProductModel.findByIdAndDelete(id);
       return !!result;
@@ -301,7 +301,7 @@ export class MongoStorage implements IStorage {
   }
 
   // Order methods
-  async getOrderById(id: number): Promise<Order | undefined> {
+  async getOrderById(id: string): Promise<Order | undefined> {
     try {
       const order = await OrderModel.findById(id);
       if (!order) return undefined;
@@ -312,7 +312,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async getOrdersByUserId(userId: number): Promise<Order[]> {
+  async getOrdersByUserId(userId: string): Promise<Order[]> {
     try {
       const orders = await OrderModel.find({ userId });
       return orders.map(this.transformOrder);
@@ -333,7 +333,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async updateOrderStatus(id: number, status: string): Promise<Order | undefined> {
+  async updateOrderStatus(id: string, status: string): Promise<Order | undefined> {
     try {
       const order = await OrderModel.findByIdAndUpdate(id, { status }, { new: true });
       if (!order) return undefined;
@@ -345,7 +345,7 @@ export class MongoStorage implements IStorage {
   }
 
   // Order Item methods
-  async getOrderItemsByOrderId(orderId: number): Promise<OrderItem[]> {
+  async getOrderItemsByOrderId(orderId: string): Promise<OrderItem[]> {
     try {
       const orderItems = await OrderItemModel.find({ orderId });
       return orderItems.map(this.transformOrderItem);
@@ -367,7 +367,7 @@ export class MongoStorage implements IStorage {
   }
 
   // Wishlist methods
-  async getWishlistByUserId(userId: number): Promise<WishlistItem[]> {
+  async getWishlistByUserId(userId: string): Promise<WishlistItem[]> {
     try {
       const wishlistItems = await WishlistItemModel.find({ userId });
       return wishlistItems.map(this.transformWishlistItem);
@@ -398,7 +398,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async removeFromWishlist(userId: number, productId: number): Promise<boolean> {
+  async removeFromWishlist(userId: string, productId: string): Promise<boolean> {
     try {
       const result = await WishlistItemModel.findOneAndDelete({
         userId,
@@ -412,7 +412,7 @@ export class MongoStorage implements IStorage {
   }
 
   // Cart methods
-  async getCartByUserId(userId: number): Promise<CartItem[]> {
+  async getCartByUserId(userId: string): Promise<CartItem[]> {
     try {
       const cartItems = await CartItemModel.find({ userId });
       return cartItems.map(this.transformCartItem);
@@ -450,7 +450,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async updateCartItem(id: number, quantity: number): Promise<CartItem | undefined> {
+  async updateCartItem(id: string, quantity: number): Promise<CartItem | undefined> {
     try {
       const cartItem = await CartItemModel.findByIdAndUpdate(
         id,
@@ -465,7 +465,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async removeFromCart(id: number): Promise<boolean> {
+  async removeFromCart(id: string): Promise<boolean> {
     try {
       const result = await CartItemModel.findByIdAndDelete(id);
       return !!result;
@@ -475,7 +475,7 @@ export class MongoStorage implements IStorage {
     }
   }
 
-  async clearCart(userId: number): Promise<boolean> {
+  async clearCart(userId: string): Promise<boolean> {
     try {
       const result = await CartItemModel.deleteMany({ userId });
       return result.deletedCount > 0;
@@ -486,7 +486,7 @@ export class MongoStorage implements IStorage {
   }
 
   // Review methods
-  async getReviewsByProductId(productId: number): Promise<Review[]> {
+  async getReviewsByProductId(productId: string): Promise<Review[]> {
     try {
       const reviews = await ReviewModel.find({ productId });
       return reviews.map(this.transformReview);
@@ -598,6 +598,7 @@ export class MongoStorage implements IStorage {
           featuredProduct: true,
           trendingProduct: false,
           newArrival: true,
+          inStock: true,
           rating: 4.9,
           reviewCount: 120,
           colors: ["Blue", "Black", "Gray"],
@@ -615,6 +616,7 @@ export class MongoStorage implements IStorage {
           featuredProduct: true,
           trendingProduct: true,
           newArrival: false,
+          inStock: true,
           rating: 4.7,
           reviewCount: 87,
           colors: ["Black", "White", "Gray"],
@@ -632,6 +634,7 @@ export class MongoStorage implements IStorage {
           featuredProduct: true,
           trendingProduct: false,
           newArrival: false,
+          inStock: true,
           rating: 4.5,
           reviewCount: 56,
           colors: ["White", "Black", "Gray", "Blue"],
