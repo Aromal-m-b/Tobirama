@@ -1,11 +1,11 @@
 import { 
-  users, User, InsertUser, 
-  products, Product, InsertProduct,
-  orders, Order, InsertOrder,
-  orderItems, OrderItem, InsertOrderItem,
-  wishlistItems, WishlistItem, InsertWishlistItem,
-  cartItems, CartItem, InsertCartItem,
-  reviews, Review, InsertReview
+  User, InsertUser, 
+  Product, InsertProduct,
+  Order, InsertOrder,
+  OrderItem, InsertOrderItem,
+  WishlistItem, InsertWishlistItem,
+  CartItem, InsertCartItem,
+  Review, InsertReview
 } from "@shared/schema";
 import session from "express-session";
 import memorystore from "memorystore";
@@ -14,48 +14,48 @@ const MemoryStore = memorystore(session);
 
 export interface IStorage {
   // User methods
-  getUser(id: number): Promise<User | undefined>;
+  getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, user: Partial<User>): Promise<User | undefined>;
+  updateUser(id: string, user: Partial<User>): Promise<User | undefined>;
   
   // Product methods
   getAllProducts(): Promise<Product[]>;
-  getProductById(id: number): Promise<Product | undefined>;
+  getProductById(id: string): Promise<Product | undefined>;
   getProductsByCategory(category: string): Promise<Product[]>;
   getFeaturedProducts(limit?: number): Promise<Product[]>;
   getTrendingProducts(limit?: number): Promise<Product[]>;
   getNewArrivals(limit?: number): Promise<Product[]>;
   searchProducts(query: string): Promise<Product[]>;
   createProduct(product: InsertProduct): Promise<Product>;
-  updateProduct(id: number, product: Partial<Product>): Promise<Product | undefined>;
-  deleteProduct(id: number): Promise<boolean>;
+  updateProduct(id: string, product: Partial<Product>): Promise<Product | undefined>;
+  deleteProduct(id: string): Promise<boolean>;
   
   // Order methods
-  getOrderById(id: number): Promise<Order | undefined>;
-  getOrdersByUserId(userId: number): Promise<Order[]>;
+  getOrderById(id: string): Promise<Order | undefined>;
+  getOrdersByUserId(userId: string): Promise<Order[]>;
   createOrder(order: InsertOrder): Promise<Order>;
-  updateOrderStatus(id: number, status: string): Promise<Order | undefined>;
+  updateOrderStatus(id: string, status: string): Promise<Order | undefined>;
   
   // Order Item methods
-  getOrderItemsByOrderId(orderId: number): Promise<OrderItem[]>;
+  getOrderItemsByOrderId(orderId: string): Promise<OrderItem[]>;
   createOrderItem(orderItem: InsertOrderItem): Promise<OrderItem>;
   
   // Wishlist methods
-  getWishlistByUserId(userId: number): Promise<WishlistItem[]>;
+  getWishlistByUserId(userId: string): Promise<WishlistItem[]>;
   addToWishlist(wishlistItem: InsertWishlistItem): Promise<WishlistItem>;
-  removeFromWishlist(userId: number, productId: number): Promise<boolean>;
+  removeFromWishlist(userId: string, productId: string): Promise<boolean>;
   
   // Cart methods
-  getCartByUserId(userId: number): Promise<CartItem[]>;
+  getCartByUserId(userId: string): Promise<CartItem[]>;
   addToCart(cartItem: InsertCartItem): Promise<CartItem>;
-  updateCartItem(id: number, quantity: number): Promise<CartItem | undefined>;
-  removeFromCart(id: number): Promise<boolean>;
-  clearCart(userId: number): Promise<boolean>;
+  updateCartItem(id: string, quantity: number): Promise<CartItem | undefined>;
+  removeFromCart(id: string): Promise<boolean>;
+  clearCart(userId: string): Promise<boolean>;
   
   // Review methods
-  getReviewsByProductId(productId: number): Promise<Review[]>;
+  getReviewsByProductId(productId: string): Promise<Review[]>;
   createReview(review: InsertReview): Promise<Review>;
   
   // Session store
@@ -63,13 +63,13 @@ export interface IStorage {
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private products: Map<number, Product>;
-  private orders: Map<number, Order>;
-  private orderItems: Map<number, OrderItem>;
-  private wishlistItems: Map<number, WishlistItem>;
-  private cartItems: Map<number, CartItem>;
-  private reviews: Map<number, Review>;
+  private users: Map<string, User>;
+  private products: Map<string, Product>;
+  private orders: Map<string, Order>;
+  private orderItems: Map<string, OrderItem>;
+  private wishlistItems: Map<string, WishlistItem>;
+  private cartItems: Map<string, CartItem>;
+  private reviews: Map<string, Review>;
   
   sessionStore: session.Store;
   
@@ -565,4 +565,6 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+// Use MongoDB storage instead of MemStorage
+import { MongoStorage } from "./mongo-storage";
+export const storage = new MongoStorage();
