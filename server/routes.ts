@@ -115,7 +115,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/products/:id", isAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const productData = req.body;
       const product = await storage.updateProduct(id, productData);
       
@@ -131,7 +131,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/products/:id", isAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const success = await storage.deleteProduct(id);
       
       if (!success) {
@@ -205,7 +205,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/cart/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const { quantity } = req.body;
       
       if (typeof quantity !== "number" || quantity < 1) {
@@ -233,7 +233,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.delete("/api/cart/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const success = await storage.removeFromCart(id);
       
       if (!success) {
@@ -316,7 +316,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.delete("/api/wishlist/:productId", isAuthenticated, async (req, res) => {
     try {
       const userId = req.user.id;
-      const productId = parseInt(req.params.productId);
+      const productId = req.params.productId;
       
       const success = await storage.removeFromWishlist(userId, productId);
       
@@ -343,7 +343,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.get("/api/orders/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const order = await storage.getOrderById(id);
       
       if (!order) {
@@ -431,7 +431,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.put("/api/orders/:id/status", isAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = req.params.id;
       const { status } = req.body;
       
       if (!status) {
@@ -453,7 +453,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Review APIs
   app.get("/api/products/:id/reviews", async (req, res) => {
     try {
-      const productId = parseInt(req.params.id);
+      const productId = req.params.id;
       const reviews = await storage.getReviewsByProductId(productId);
       res.json(reviews);
     } catch (error) {
@@ -463,7 +463,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
   app.post("/api/products/:id/reviews", isAuthenticated, async (req, res) => {
     try {
-      const productId = parseInt(req.params.id);
+      const productId = req.params.id;
       const userId = req.user.id;
       const reviewData = { ...req.body, userId, productId };
       
@@ -490,9 +490,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // User APIs (for admin)
   app.get("/api/users", isAdmin, async (req, res) => {
     try {
-      const users = Array.from(storage.users.values());
+      // For MongoDB implementation, we need to fetch all users
+      const allUsers = await storage.getAllUsers();
       // Remove passwords from response
-      const safeUsers = users.map(user => {
+      const safeUsers = allUsers.map(user => {
         const { password, ...safeUser } = user;
         return safeUser;
       });
