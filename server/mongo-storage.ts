@@ -183,6 +183,16 @@ export class MongoStorage implements IStorage {
     }
   }
 
+  async getAllUsers(): Promise<User[]> {
+    try {
+      const users = await UserModel.find();
+      return users.map(user => this.transformUser(user));
+    } catch (error) {
+      console.error("Error getting all users:", error);
+      return [];
+    }
+  }
+
   // Product methods
   async getAllProducts(): Promise<Product[]> {
     try {
@@ -556,10 +566,14 @@ export class MongoStorage implements IStorage {
 
   // Initialize with sample data if needed
   async initializeData() {
-    // Check if the database is empty and add sample data if needed
-    const userCount = await UserModel.countDocuments();
-    if (userCount === 0) {
-      console.log("Initializing database with sample data...");
+    try {
+      // Check if the database is empty and add sample data if needed
+      const userCount = await UserModel.countDocuments();
+      const productCount = await ProductModel.countDocuments();
+      console.log(`Database contains ${userCount} users and ${productCount} products`);
+      
+      if (userCount === 0 || productCount === 0) {
+        console.log("Initializing database with sample data...");
       
       // Create admin user
       const adminUser = new UserModel({
@@ -648,6 +662,9 @@ export class MongoStorage implements IStorage {
       }
       
       console.log("Sample data initialized successfully!");
+    }
+    } catch (error) {
+      console.error("Error initializing data:", error);
     }
   }
 }
